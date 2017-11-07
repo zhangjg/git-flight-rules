@@ -1,0 +1,81 @@
+* Git 规则速查
+
+** 编辑提交
+*** 我刚刚提交了什么?
+
+假如你用 `git commit -a` 盲目的提交了改变, 而你想在想看看你刚刚提交的内容. 你可以用下面的命令查看你的当前的 HEAD 中的最新的提交:
+#+BEGIN_SRC bash
+(master)$ git show
+#+END_SRC
+或
+#+BEGIN_SRC bash
+$ git log -n1 -p
+#+END_SRC
+
+*** 写错了提交的消息
+
+如果你写错了提交的消息, 而且提交还没有被推送的话, 下面的命令可以用来改变提交的消息:
+#+BEGIN_SRC bash
+$ git commit --amend
+#+END_SRC
+
+如果你想要之间指定修改后的消息的话, 可以这样做:
+#+BEGIN_SRC bash
+$ git commit --amend -m 'xxxxx'
+#+END_SRC
+
+如果你已经推送了这个消息的话, 你可以修改 (amend) 这个提交, 然后强制推送, 但是不建议这样做.
+
+*** 提交的时候用了错误名字和邮件配置
+
+如果错误只发生在一次提交中, 修改这个提交.
+#+BEGIN_SRC bash
+$ git commit --amend --author "作者名字 <作者邮件@地址>" 
+#+END_SRC
+如果你想要修改所有的历史, 查看git 文档的 'git filter-branch' 页.
+
+*** 从一个提交中移除一个文件
+为了从一个提交中移除一个文件, 使用下面的命令:
+#+BEGIN_SRC bash
+$ git checkout HEAD^ myfile
+$ git add -A
+$ git commit --amend
+#+END_SRC
+
+当你打了一个补丁, 但是提交了不必要的文件的时候, 这非常有用, 还需要强制推送, 以更新远程仓库中这个补丁.
+
+*** 删除或移除最后的提交
+
+如果你需要删除已经推送了的提交, 你可以使用下面的命令. 但是这会扰乱你的仓库的历史, 其他已经拉下了这个仓库的其他人的历史也会没打乱. 总之, 你永远都不该这样做.
+
+#+BEGIN_SRC bash
+$ git reset HEAD^ --hard
+$ git push -f [remote] [branch]
+#+END_SRC
+
+如果你还没有推送, 把 Git 重设为你最后提交以前的状态(同时保持你的 staged 的改变):
+#+BEGIN_SRC bash
+(my-branch*)$ git reset --soft HEAD@{1}
+#+END_SRC
+这只有当你还没有推送的时候才管用. 如果你已经推送了, 能做的唯一的安全的事情就是 =git revert SHAofBadCommit=. 这将会创建一个新的提交, 在这个新提交中会撤销上个提交中的改变. 如果你推送到的分支是 rebase-safe (不期望其他的开发者从这个分支拉去代码) 的话, 你可以使用 =git push -f=. 更多内容查看上一段内容.
+
+*** 删除移除任意的提交
+上一节的警告, 同样适用这一节. 可能的话, 永远不要做.
+#+BEGIN_SRC bash
+$ git rebase --onto SHA1_OF_BAD_COMMIT^ SHA1_OF_BAD_COMMIT
+$ git push -f [remote] [branch]
+#+END_SRC
+
+或者做一个交互的 从新分组 并移除你想要删除的提交的行.
+
+*** 推送修改的提交到远程的时候, 发生了错误
+#+BEGIN_SRC
+To https://github.com/yourusername/repo.git
+! [rejected]        mybranch -> mybranch (non-fast-forward)
+error: failed to push some refs to 'https://github.com/tanay1337/webmaker.org.git'
+hint: Updates were rejected because the tip of your current branch is behind
+hint: its remote counterpart. Integrate the remote changes (e.g.
+hint: 'git pull ...') before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+#+END_SRC
+

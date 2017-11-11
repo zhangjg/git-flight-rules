@@ -79,3 +79,20 @@ hint: 'git pull ...') before pushing again.
 hint: See the 'Note about fast-forwards' in 'git push --help' for details.
 #+END_SRC
 
+注意, 像使用 rebasing (见下面), *用一个新的提交修改一个久的提交的*,  如果你已经把你修改前的提交推送到了远程之后, 你必须强制推送 (=-f=) 你的改变. 当你需要这样做的时候, 要小心 - /总是/ 要确保你制定一个分支!
+#+BEGIN_SRC sh
+(my-brach)$ git push origin mybranch -f
+#+END_SRC
+一般来说, *避免强制推送*. 最好创建并推送一个新的提交而不是强制推送修改的提交, 因为这样做, 任何与这个分支其子分支有交互的任何其他开发者的源码历史中引发冲突.
+
+*** 错误的硬重设了, 想要改回来
+如果你错误的做了 =git reset --hard=, 你可以把你的提交在找回来, 因为 git 记录了一些天的所有事情的记录.
+#+BEGIN_SRC sh
+(master)$ git reflog
+#+END_SRC 
+这样你将看到一个你过去的提交, 以及重设的提交的列表. 选择你想要返回的提交的 SHA, 然后再次重设:
+#+BEGIN_SRC sh
+(master)$ git reset --hard SHA1234
+#+END_SRC
+然后你就得到你想要的了.
+** 存储

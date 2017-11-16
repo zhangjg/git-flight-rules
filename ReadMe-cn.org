@@ -1,6 +1,7 @@
 * Git 规则速查
 
 ** 编辑提交
+
 *** 我刚刚提交了什么?
 
 假如你用 `git commit -a` 盲目的提交了改变, 而你想在想看看你刚刚提交的内容. 你可以用下面的命令查看你的当前的 HEAD 中的最新的提交:
@@ -95,4 +96,91 @@ hint: See the 'Note about fast-forwards' in 'git push --help' for details.
 (master)$ git reset --hard SHA1234
 #+END_SRC
 然后你就得到你想要的了.
-** 存储
+** 记录要提交的内容(Staging)
+
+*** 把以及记录改变添加到上一个提交中
+
+#+BEGIN_SRC sh
+(my-branch*)$ git commit --amend
+#+END_SRC
+
+*** 记录新文件的一部分, 而不是整个文件
+通常情况下, 如果你想记录一个文件的一部分, 你可以运行下面的命令:
+#+BEGIN_SRC sh
+$ git add --patch filename.x
+#+END_SRC
+
+=-p= 简洁形式. 这将打开一个交互模式. 你能使用 =s= 选项来把拆分提交 - 然而, 如果文件是新的, 你不需要这个选项. 要添加一个新文件, 使用下面的命令:
+#+BEGIN_SRC sh
+git add -N filename.x
+#+END_SRC
+然后, 你需要使用 =e= 选项来手动的选择添加那些行. 运行 =git diff --cached= 将会显示已经记录的内容的和本地存储之间有差异的行.
+
+*** 把一个文件中的改变添加到两个不同的提交中
+
+=git add= 将会添加整个文件到一个提交中. =git add -p= 允许你交互式的选择添加那些改变.
+
+*** 记录未记录的编辑并撤销已经记录编辑
+这很难做到. 我知道的最好的办法是你应该先存储(stash) 你未记录要提交的内容的编辑. 然后, 重设. 然后把你存储的编辑弹出, 然后添加它们.
+#+BEGIN_SRC sh
+$ git stash -k
+$ git reset --hard
+$ git stash pop
+$ git add -A
+#+END_SRC
+
+** 未记录的编辑
+*** 把我的未记录的编辑移到新分支
+#+BEGIN_SRC sh
+$ git checkout -p my-branch
+#+END_SRC
+
+*** 把我的未记录编辑移到其他的已经存在的分支
+#+BEGIN_SRC sh
+$ git stash
+$ git checkout my-branch
+$ git stash pop
+#+END_SRC
+
+*** 撤销本地的, 未提交的改变
+如果你只是想回到起初和你本地之间的某个提交, 你可以这样做:
+#+BEGIN_SRC sh
+# one commit
+(my-branch)$ git reset --hard HEAD^
+# two commits
+(my-branch)$ git reset --hard HEAD^^
+# four commits
+(my-branch)$ git reset --hard HEAD~4
+# or
+(master)$ git checkout -f
+#+END_SRC
+
+要重设一个特定的文件, 你可以使用文件名作为参数:
+#+BEGIN_SRC sh
+$ git reset filename
+#+END_SRC
+
+*** 放弃特定的未记录的改变
+当你想要在你正在工作的备份中去掉一些的时候.
+
+检出不想要的改变, 保持好的改变.
+#+BEGIN_SRC sh
+$ git checkout -p
+# 对所有你想要丢弃的片段 回答 y 
+#+END_SRC
+
+另外一个策略涉及到使用 =stash=. 把所有的好的改变保存起来, 重设工作的备份, 然后把好的改变拿回来.
+
+#+BEGIN_SRC sh
+$ git stash -p
+# 选择所有的你想要保存的片段
+$ git reset --hard
+$ git stash pop
+#+END_SRC
+
+或者, 把你不想要的改变保存起来, 然后丢掉这个保存.
+#+BEGIN_SRC sh
+$ git stash -p
+# 选择所有你不想要保存的片段
+$ git stash drop
+#+END_SRC
